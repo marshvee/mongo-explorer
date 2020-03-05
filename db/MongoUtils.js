@@ -2,8 +2,6 @@ const MongoClient = require("mongodb").MongoClient;
 const ObjectID = require("mongodb").ObjectID;
 
 function MongoUtils() {
-  process.env.usuario = "Mariana";
-  process.env.clave = "desarrollouniandes2020";
   const mu = {},
     uri = `mongodb+srv://${(process.env.usuario)}:${(process.env.clave)}@cluster0-h9ykn.mongodb.net/`,
     client = new MongoClient(uri, { useUnifiedTopology: true });
