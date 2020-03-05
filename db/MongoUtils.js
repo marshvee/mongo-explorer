@@ -3,11 +3,10 @@ const ObjectID = require("mongodb").ObjectID;
 
 function MongoUtils() {
   const mu = {},
-    uri = `mongodb+srv://${(process.env.usuario)}:${(process.env.clave)}@cluster0-h9ykn.mongodb.net/`,
-    client = new MongoClient(uri, { useUnifiedTopology: true });
+    uri = `mongodb+srv://${(process.env.usuario)}:${(process.env.clave)}@cluster0-h9ykn.mongodb.net/`;
 
-  // Connect
   mu.getDbs = () => {
+    const client = new MongoClient(uri, { useUnifiedTopology: true });
     return client
       .connect()
       .then(client =>
@@ -15,6 +14,20 @@ function MongoUtils() {
           .db()
           .admin()
           .listDatabases() // Returns a promise that will resolve to the list of databases
+      )
+      .finally(() => client.close());
+  }
+
+  mu.getCollections = (dbName) => {
+    const client = new MongoClient(uri, { useUnifiedTopology: true });
+    return client
+      .connect()
+      .then(
+        client =>
+          client
+            .db(dbName)
+            .listCollections()
+            .toArray() // Returns a promise that will resolve to the list of the collections
       )
       .finally(() => client.close());
   }
