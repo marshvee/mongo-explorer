@@ -10,9 +10,14 @@ router.get("/", function (req, res) {
 
 /* Collection data end point */
 router.get("/databases/:dbName/collections", function (req, res) {
-  console.log(req.params.dbName);
   MongoUtils.getCollections(req.params.dbName)
     .then(cols => { res.send(cols); })
+});
+
+/* Records data end point */
+router.get("/databases/:dbName/collections/:colName/records", function (req, res) {
+  MongoUtils.getRecords(req.params.dbName, req.params.colName)
+    .then(records => { console.log(records); res.json(records); })
 });
 
 module.exports = router;

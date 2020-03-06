@@ -1,7 +1,7 @@
-function generateCollections() {
+function generateCollectionSelector() {
   let dbName = document.querySelector("#db-selector").value;
   let colSelector = document.querySelector("#col-selector");
-  console.log(dbName);
+
   if (dbName === "") {
     colSelector.innerHTML = "";
     let option = document.createElement("option");
@@ -13,7 +13,6 @@ function generateCollections() {
     fetch(`databases/${dbName}/collections`)
       .then(res => res.json())
       .then(cols => {
-        console.log(cols);
         colSelector.innerHTML = "";
         let option = document.createElement("option");
         option.value = "";
@@ -29,6 +28,18 @@ function generateCollections() {
   }
 }
 
-let dbSelector = document.querySelector("#db-selector");
+function generateCollectionTable() {
+  let colName = document.querySelector("#col-selector").value;
+  if (dbName === "") {
 
-dbSelector.addEventListener("change", generateCollections);
+  }
+  else {
+
+  }
+}
+
+let dbSelector = document.querySelector("#db-selector");
+let colSelector = document.querySelector("#col-selector");
+
+dbSelector.addEventListener("change", generateCollectionSelector);
+colSelector.addEventListener("change", generateCollectionTable);

@@ -32,6 +32,23 @@ function MongoUtils() {
       .finally(() => client.close());
   }
 
+  mu.getRecords = (dbName, colName, query) => {
+    const client = new MongoClient(uri, { useUnifiedTopology: true });
+    return client
+      .connect()
+      .then(
+        client =>
+          client
+            .db(dbName)
+            .collection(colName)
+            .find(query)
+            .limit(20)
+            .sort({ timestamp: -1 })
+            .toArray()
+            .finally(() => client.close())
+      )
+  }
+
   return mu;
 }
 
