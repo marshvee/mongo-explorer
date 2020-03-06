@@ -2,9 +2,11 @@ function onColSelection() {
   let dbName = document.querySelector("#db-selector").value;
   let colName = document.querySelector("#col-selector").value;
   let table = document.querySelector("#records-table");
-  let form_div = document.querySelector("#record-create");
+  let form_create = document.querySelector("#record-create");
+  let form_update = document.querySelector("#record-update");
   table.innerHTML = "";
-  form_div.innerHTML = "";
+  form_create.innerHTML = "";
+  form_update.innerHTML = "";
 
   if (colName != "") {
     fetch(`databases/${dbName}/collections/${colName}/records`)
@@ -12,13 +14,21 @@ function onColSelection() {
       .then(records => {
         if (records.length > 0) {
           populateRecordsTable(table, records, dbName, colName);
+          // Create form
           let title = document.createElement("h2");
           title.textContent = "Create record";
-          form_div.appendChild(title);
+          form_create.appendChild(title);
           let form = document.createElement("form");
-          populateRecordForm(form, records[records.length - 1]);
+          populateCreateForm(form, records[records.length - 1]);
           form.addEventListener("submit", createRecord(dbName, colName));
-          form_div.appendChild(form);
+          form_create.appendChild(form);
+          // Update form
+          title = document.createElement("h2");
+          title.textContent = "Update record";
+          form_update.appendChild(title);
+          form = document.createElement("form");
+          populateUpdateForm(form, records[records.length - 1]);
+          form_update.appendChild(form);
         }
       })
   }
@@ -114,7 +124,7 @@ function populateRecordsTable(table, records, dbName, colName) {
   table.appendChild(body);
 }
 
-function populateRecordForm(form, record) {
+function populateCreateForm(form, record) {
   for (att in record) {
     if (att !== "_id") {
       let form_group = document.createElement("div");
@@ -123,6 +133,53 @@ function populateRecordForm(form, record) {
       label.setAttribute("for", att);;
       label.textContent = att;
       let input = document.createElement("input");
+      input.type = "text";
+      input.className = "form-control";
+      input.id = att;
+      form_group.appendChild(label);
+      form_group.appendChild(input);
+      form.appendChild(form_group);
+    }
+  }
+  let btn = document.createElement("button");
+  btn.className = "btn btn-primary";
+  btn.textContent = "Create";
+  btn.type = "submit";
+  form.appendChild(btn);
+}
+
+function populateUpdateForm(form, record) {
+  let fieldset = document.createElement("fieldset");
+  for (att in record) {
+    if (att !== "_id") {
+      let form_group = document.createElement("div");
+      form_group.className = "form-group";
+      let label = document.createElement("label");
+      label.setAttribute("for", att);;
+      label.textContent = att;
+      let input = document.createElement("input");
+      input.type = "text";
+      input.className = "form-control update";
+      input.id = att;
+      input.setAttribute("disabled", true);
+      form_group.appendChild(label);
+      form_group.appendChild(input);
+      fieldset.appendChild(form_group);
+    }
+  }
+  let btn = document.createElement("button");
+  btn.className = "btn btn-primary";
+  btn.textContent = "Update";
+  btn.type = "submit";
+  fieldset.appendChild(btn);
+  fieldset.setAttribute("disabled", true);
+  form.appendChild(fieldset);
+}
+
+function activateUpdateForm(form, record) {
+  for (att in record) {
+    if (att !== "_id") {
+      let input = document.querySelector(".");
       input.type = "text";
       input.className = "form-control";
       input.id = att;
