@@ -2,7 +2,7 @@ const MongoClient = require("mongodb").MongoClient;
 
 function MongoUtils() {
   const mu = {},
-    uri = `mongodb+srv://${(process.env.usuario)}:${(process.env.clave)}@cluster0-h9ykn.mongodb.net/`;
+    uri = `mongodb+srv://${(process.env.username)}:${(process.env.password)}@${process.env.host}.mongodb.net/`;
 
   mu.connect = () =>
     new MongoClient(uri, { useUnifiedTopology: true })

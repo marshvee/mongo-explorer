@@ -2,9 +2,9 @@ function onColSelection() {
   let dbName = document.querySelector("#db-selector").value;
   let colName = document.querySelector("#col-selector").value;
   let table = document.querySelector("#records-table");
-  let form = document.querySelector("#record-create");
+  let form_div = document.querySelector("#record-create");
   table.innerHTML = "";
-  form.innerHTML = "";
+  form_div.innerHTML = "";
 
   if (colName != "") {
     fetch(`databases/${dbName}/collections/${colName}/records`)
@@ -12,7 +12,30 @@ function onColSelection() {
       .then(records => {
         if (records.length > 0) {
           populateRecordsTable(table, records);
-          populateRecordForm(form, records[0]);
+          let title = document.createElement("h2");
+          title.textContent = "Create record";
+          form_div.appendChild(title);
+          let form = document.createElement("form");
+          populateRecordForm(form, records[records.length - 1]);
+          form.addEventListener("submit", createRecord(dbName, colName));
+          form_div.appendChild(form);
+        }
+      })
+  }
+}
+
+function reloadTable() {
+  let dbName = document.querySelector("#db-selector").value;
+  let colName = document.querySelector("#col-selector").value;
+  let table = document.querySelector("#records-table");
+  table.innerHTML = "";
+
+  if (colName != "") {
+    fetch(`databases/${dbName}/collections/${colName}/records`)
+      .then(res => res.json())
+      .then(records => {
+        if (records.length > 0) {
+          populateRecordsTable(table, records);
         }
       })
   }
@@ -46,7 +69,7 @@ function populateRecordsTable(table, records) {
     row.scope = "row";
     row.textContent = count;
     tr.appendChild(row);
-    for (att in records[0]) {
+    for (att in records[records.length - 1]) {
       if (att !== "_id") {
         let col = document.createElement("td");
         col.textContent = record[att];
@@ -65,7 +88,7 @@ function populateRecordForm(form, record) {
       let form_group = document.createElement("div");
       form_group.className = "form-group";
       let label = document.createElement("label");
-      label.for = att;
+      label.setAttribute("for", att);;
       label.textContent = att;
       let input = document.createElement("input");
       input.type = "text";
@@ -78,10 +101,35 @@ function populateRecordForm(form, record) {
     }
   }
   let btn = document.createElement("button");
-  btn.type = "submit";
   btn.className = "btn btn-primary";
   btn.textContent = "Create";
+  btn.type = "submit";
   form.appendChild(btn);
+}
+
+function createRecord(dbName, colName) {
+  return (event) => {
+    event.preventDefault();
+    let record = {};
+    let inputs = document.querySelectorAll("#record-create form .form-group input");
+    for (input of inputs) {
+      record[input.labels[0].textContent] = input.value;
+    }
+    fetch(`databases/${dbName}/collections/${colName}/records`, {
+      method: 'POST',
+      body: JSON.stringify(record),
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+      .then(res => res.json())
+      .then((result) => {
+        reloadTable();
+        alert(`Record succesfully added to collection ${colName} in database ${dbName} with id ${result.insertedId}`);
+        window.scrollTo(0, 0);
+      })
+
+  }
 }
 
 let colSelector = document.querySelector("#col-selector");
