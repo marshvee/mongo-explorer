@@ -1,9 +1,11 @@
 function generateCollectionSelector() {
   let dbName = document.querySelector("#db-selector").value;
   let colSelector = document.querySelector("#col-selector");
+  let table = document.querySelector("#records-table");
+  colSelector.innerHTML = "";
+  table.innerHTML = "";
 
   if (dbName == "") {
-    colSelector.innerHTML = "";
     let option = document.createElement("option");
     option.value = "";
     option.innerHTML = "---------------------------";
@@ -13,7 +15,6 @@ function generateCollectionSelector() {
     fetch(`databases/${dbName}/collections`)
       .then(res => res.json())
       .then(cols => {
-        colSelector.innerHTML = "";
         let option = document.createElement("option");
         option.value = "";
         option.innerHTML = "--Please choose an option--";
@@ -48,10 +49,12 @@ function generateCollectionTable() {
           col.innerHTML = "#";
           tr.appendChild(col);
           for (att in records[0]) {
-            let col = document.createElement("th");
-            col.scope = "col";
-            col.innerHTML = att;
-            tr.appendChild(col);
+            if (att !== "_id") {
+              let col = document.createElement("th");
+              col.scope = "col";
+              col.innerHTML = att;
+              tr.appendChild(col);
+            }
           }
           head.appendChild(tr);
           table.appendChild(head);
@@ -65,9 +68,11 @@ function generateCollectionTable() {
             row.innerHTML = count;
             tr.appendChild(row);
             for (att in records[0]) {
-              let col = document.createElement("td");
-              col.innerHTML = record[att];
-              tr.appendChild(col);
+              if (att !== "_id") {
+                let col = document.createElement("td");
+                col.innerHTML = record[att];
+                tr.appendChild(col);
+              }
             }
             body.appendChild(tr);
             count += 1;
