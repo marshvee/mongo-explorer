@@ -11,7 +11,7 @@ function onColSelection() {
       .then(res => res.json())
       .then(records => {
         if (records.length > 0) {
-          populateRecordsTable(table, records);
+          populateRecordsTable(table, records, dbName, colName);
           let title = document.createElement("h2");
           title.textContent = "Create record";
           form_div.appendChild(title);
@@ -35,20 +35,46 @@ function reloadTable() {
       .then(res => res.json())
       .then(records => {
         if (records.length > 0) {
-          populateRecordsTable(table, records);
+          populateRecordsTable(table, records, dbName, colName);
         }
       })
   }
 }
 
-function populateRecordsTable(table, records) {
+function generateDeleteButton(col, dbName, colName, recordID) {
+  let btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "btn btn-danger";
+  btn.textContent = "Delete";
+  btn.addEventListener("click", deleteRecord(dbName, colName, recordID));
+  col.appendChild(btn);
+}
+
+function generateUpdateButton(col, dbName, colName, recordID) {
+  let btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "btn btn-primary";
+  btn.textContent = "Update";
+  //btn.addEventListener("click", deleteRecord(dbName, colName, recordID));
+  col.appendChild(btn);
+}
+
+function populateRecordsTable(table, records, dbName, colName) {
   // Build table head
   let head = document.createElement("thead");
   head.className = "thead-dark";
   let tr = document.createElement("tr");
   let col = document.createElement("th");
   col.scope = "col";
-  col.innerHTML = "#";
+  col.textContent = "Actions";
+  tr.appendChild(col);
+  col = document.createElement("th");
+  col.scope = "col";
+  col.textContent = "";
+  tr.appendChild(col);
+  col = document.createElement("th");
+  col.scope = "col";
+  col.textContent = "#";
   tr.appendChild(col);
   for (att in records[0]) {
     if (att !== "_id") {
@@ -65,6 +91,12 @@ function populateRecordsTable(table, records) {
   let count = 1;
   for (record of records) {
     let tr = document.createElement("tr");
+    let col = document.createElement("td");
+    generateUpdateButton(col, dbName, colName, record["_id"]);
+    tr.appendChild(col);
+    col = document.createElement("td");
+    generateDeleteButton(col, dbName, colName, record["_id"]);
+    tr.appendChild(col);
     let row = document.createElement("th");
     row.scope = "row";
     row.textContent = count;
@@ -94,7 +126,6 @@ function populateRecordForm(form, record) {
       input.type = "text";
       input.className = "form-control";
       input.id = att;
-
       form_group.appendChild(label);
       form_group.appendChild(input);
       form.appendChild(form_group);
@@ -131,6 +162,21 @@ function createRecord(dbName, colName) {
 
   }
 }
+
+function deleteRecord(dbName, colName, recordID) {
+  return (event) => {
+    event.preventDefault();
+    fetch(`databases/${dbName}/collections/${colName}/records/${recordID}`, {
+      method: 'DELETE'
+    })
+      .then(() => {
+        reloadTable();
+        alert(`Record succesfully deleted from collection ${colName} in database ${dbName}!`);
+      })
+
+  }
+}
+
 
 let colSelector = document.querySelector("#col-selector");
 colSelector.addEventListener("change", onColSelection);
