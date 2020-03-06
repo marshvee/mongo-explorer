@@ -2,7 +2,7 @@ function generateCollectionSelector() {
   let dbName = document.querySelector("#db-selector").value;
   let colSelector = document.querySelector("#col-selector");
 
-  if (dbName === "") {
+  if (dbName == "") {
     colSelector.innerHTML = "";
     let option = document.createElement("option");
     option.value = "";
@@ -29,12 +29,52 @@ function generateCollectionSelector() {
 }
 
 function generateCollectionTable() {
+  let dbName = document.querySelector("#db-selector").value;
   let colName = document.querySelector("#col-selector").value;
-  if (dbName === "") {
+  let table = document.querySelector("#records-table");
+  table.innerHTML = "";
 
-  }
-  else {
-
+  if (colName != "") {
+    fetch(`databases/${dbName}/collections/${colName}/records`)
+      .then(res => res.json())
+      .then(records => {
+        if (records.length > 0) {
+          // Build table head
+          let head = document.createElement("thead");
+          head.className = "thead-dark";
+          let tr = document.createElement("tr");
+          let col = document.createElement("th");
+          col.scope = "col";
+          col.innerHTML = "#";
+          tr.appendChild(col);
+          for (att in records[0]) {
+            let col = document.createElement("th");
+            col.scope = "col";
+            col.innerHTML = att;
+            tr.appendChild(col);
+          }
+          head.appendChild(tr);
+          table.appendChild(head);
+          // Build table body
+          let body = document.createElement("tbody");
+          let count = 1;
+          for (record of records) {
+            let tr = document.createElement("tr");
+            let row = document.createElement("th");
+            row.scope = "row";
+            row.innerHTML = count;
+            tr.appendChild(row);
+            for (att in records[0]) {
+              let col = document.createElement("td");
+              col.innerHTML = record[att];
+              tr.appendChild(col);
+            }
+            body.appendChild(tr);
+            count += 1;
+          }
+          table.appendChild(body);
+        }
+      })
   }
 }
 

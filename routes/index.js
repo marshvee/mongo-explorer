@@ -17,7 +17,7 @@ router.get("/databases/:dbName/collections", function (req, res) {
 /* Records data end point */
 router.get("/databases/:dbName/collections/:colName/records", function (req, res) {
   MongoUtils.getRecords(req.params.dbName, req.params.colName)
-    .then(records => { console.log(records); res.json(records); })
+    .then(records => { res.send(records); })
 });
 
 module.exports = router;
