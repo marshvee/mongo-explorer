@@ -60,12 +60,12 @@ function generateDeleteButton(col, dbName, colName, recordID) {
   col.appendChild(btn);
 }
 
-function generateUpdateButton(col, dbName, colName, recordID) {
+function generateUpdateButton(col, dbName, colName, record) {
   let btn = document.createElement("button");
   btn.type = "button";
   btn.className = "btn btn-primary";
   btn.textContent = "Update";
-  //btn.addEventListener("click", deleteRecord(dbName, colName, recordID));
+  btn.addEventListener("click", activateUpdateForm(record, dbName, colName));
   col.appendChild(btn);
 }
 
@@ -102,7 +102,7 @@ function populateRecordsTable(table, records, dbName, colName) {
   for (record of records) {
     let tr = document.createElement("tr");
     let col = document.createElement("td");
-    generateUpdateButton(col, dbName, colName, record["_id"]);
+    generateUpdateButton(col, dbName, colName, record);
     tr.appendChild(col);
     col = document.createElement("td");
     generateDeleteButton(col, dbName, colName, record["_id"]);
@@ -130,12 +130,12 @@ function populateCreateForm(form, record) {
       let form_group = document.createElement("div");
       form_group.className = "form-group";
       let label = document.createElement("label");
-      label.setAttribute("for", att);;
+      label.setAttribute("for", `create-${att}`);
       label.textContent = att;
       let input = document.createElement("input");
       input.type = "text";
       input.className = "form-control";
-      input.id = att;
+      input.id = `create-${att}`;
       form_group.appendChild(label);
       form_group.appendChild(input);
       form.appendChild(form_group);
@@ -155,12 +155,12 @@ function populateUpdateForm(form, record) {
       let form_group = document.createElement("div");
       form_group.className = "form-group";
       let label = document.createElement("label");
-      label.setAttribute("for", att);;
+      label.setAttribute("for", `update-${att}`);
       label.textContent = att;
       let input = document.createElement("input");
       input.type = "text";
       input.className = "form-control update";
-      input.id = att;
+      input.id = `update-${att}`;;
       input.setAttribute("disabled", true);
       form_group.appendChild(label);
       form_group.appendChild(input);
@@ -168,6 +168,7 @@ function populateUpdateForm(form, record) {
     }
   }
   let btn = document.createElement("button");
+  btn.id = "btn-update";
   btn.className = "btn btn-primary";
   btn.textContent = "Update";
   btn.type = "submit";
@@ -176,23 +177,19 @@ function populateUpdateForm(form, record) {
   form.appendChild(fieldset);
 }
 
-function activateUpdateForm(form, record) {
-  for (att in record) {
-    if (att !== "_id") {
-      let input = document.querySelector(".");
-      input.type = "text";
-      input.className = "form-control";
-      input.id = att;
-      form_group.appendChild(label);
-      form_group.appendChild(input);
-      form.appendChild(form_group);
-    }
+function deactivateUpdateForm() {
+  //deactivate fieldset
+  document.querySelector("fieldset").setAttribute("disabled", true);
+  //deactivate and empty each input
+  let inputs = document.querySelectorAll("#record-update form .form-group input");
+  for (input of inputs) {
+    input.value = "";
+    input.setAttribute("disabled", true);
   }
-  let btn = document.createElement("button");
-  btn.className = "btn btn-primary";
-  btn.textContent = "Create";
-  btn.type = "submit";
-  form.appendChild(btn);
+  //remove listener from button
+  let oldBtn = document.querySelector("#btn-update")
+  let newBtn = oldBtn.cloneNode(true);
+  oldBtn.parentNode.replaceChild(newBtn, oldBtn);
 }
 
 function createRecord(dbName, colName) {
@@ -216,7 +213,30 @@ function createRecord(dbName, colName) {
         alert(`Record succesfully added to collection ${colName} in database ${dbName} with id ${result.insertedId}`);
         window.scrollTo(0, 0);
       })
+  }
+}
 
+function updateRecord(dbName, colName, recordID) {
+  return (event) => {
+    event.preventDefault();
+    let record = {};
+    let inputs = document.querySelectorAll("#record-update form .form-group input");
+    for (input of inputs) {
+      record[input.labels[0].textContent] = input.value;
+    }
+    fetch(`databases/${dbName}/collections/${colName}/records/${recordID}`, {
+      method: 'PUT',
+      body: JSON.stringify(record),
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+      .then(() => {
+        reloadTable();
+        alert(`Record succesfully updated to collection ${colName} in database ${dbName} with id ${recordID}`);
+        window.scrollTo(0, 0);
+        deactivateUpdateForm();
+      })
   }
 }
 
@@ -227,10 +247,33 @@ function deleteRecord(dbName, colName, recordID) {
       method: 'DELETE'
     })
       .then(() => {
-        reloadTable();
         alert(`Record succesfully deleted from collection ${colName} in database ${dbName}!`);
+        reloadTable();
+        window.scrollTo(0, 0);
       })
+  }
+}
 
+function activateUpdateForm(record, dbName, colName) {
+  return () => {
+    //activate fieldset
+    document.querySelector("fieldset").removeAttribute("disabled");
+    //activate and fill each input
+    let inputs = document.querySelectorAll("#record-update form .form-group input");
+    for (input of inputs) {
+      input.value = record[input.labels[0].textContent];
+      input.removeAttribute("disabled");
+    }
+    //removes listener from btn
+    let oldBtn = document.querySelector("#btn-update")
+    let newBtn = oldBtn.cloneNode(true);
+    oldBtn.parentNode.replaceChild(newBtn, oldBtn);
+    //add listener to button
+    document.querySelector("#btn-update")
+      .addEventListener("click", updateRecord(dbName, colName, record["_id"]));
+    //scroll to forms
+    location.href = "#";
+    location.href = "#forms";
   }
 }
 
