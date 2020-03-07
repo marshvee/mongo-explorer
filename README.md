@@ -1,6 +1,6 @@
 # MongoDB Explorer
 
-MongoDB Explorer is a web app for exploring and managing your MongoDB databases and collections. You can directly visit the website (hosted in HerokuApp) [here]()
+MongoDB Explorer is a web app for exploring and managing your MongoDB databases and collections. You can directly visit the website (hosted in HerokuApp) [here](https://mongodb-explorer.herokuapp.com)
 
 ## Functionalities
 - List all existent databases in a server.
