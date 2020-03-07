@@ -14,11 +14,15 @@ function populateColSelector(colSelector, cols) {
 function onDbSelection() {
   let dbName = document.querySelector("#db-selector").value;
   let colSelector = document.querySelector("#col-selector");
+  let stats = document.querySelector("#col-stats .row");
   let table = document.querySelector("#records-table");
-  let form = document.querySelector("#record-create");
+  let form_create = document.querySelector("#record-create");
+  let form_update = document.querySelector("#record-update");
   colSelector.innerHTML = "";
   table.innerHTML = "";
-  form.innerHTML = "";
+  stats.innerHTML = "";
+  form_create.innerHTML = "";
+  form_update.innerHTML = "";
 
   if (dbName == "") {
     let option = document.createElement("option");

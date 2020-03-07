@@ -1,14 +1,21 @@
 function onColSelection() {
   let dbName = document.querySelector("#db-selector").value;
   let colName = document.querySelector("#col-selector").value;
+  let stats_container = document.querySelector("#col-stats .row");
   let table = document.querySelector("#records-table");
   let form_create = document.querySelector("#record-create");
   let form_update = document.querySelector("#record-update");
   table.innerHTML = "";
+  stats_container.innerHTML = "";
   form_create.innerHTML = "";
   form_update.innerHTML = "";
 
   if (colName != "") {
+    fetch(`databases/${dbName}/collections/${colName}/stats`)
+      .then(res => res.json())
+      .then(stats => {
+        populateStats(stats_container, stats);
+      })
     fetch(`databases/${dbName}/collections/${colName}/records`)
       .then(res => res.json())
       .then(records => {
@@ -37,10 +44,17 @@ function onColSelection() {
 function reloadTable() {
   let dbName = document.querySelector("#db-selector").value;
   let colName = document.querySelector("#col-selector").value;
+  let stats_container = document.querySelector("#col-stats .row")
   let table = document.querySelector("#records-table");
+  stats_container.innerHTML = "";
   table.innerHTML = "";
 
   if (colName != "") {
+    fetch(`databases/${dbName}/collections/${colName}/stats`)
+      .then(res => res.json())
+      .then(stats => {
+        populateStats(stats_container, stats);
+      })
     fetch(`databases/${dbName}/collections/${colName}/records`)
       .then(res => res.json())
       .then(records => {
@@ -122,6 +136,41 @@ function populateRecordsTable(table, records, dbName, colName) {
     count += 1;
   }
   table.appendChild(body);
+}
+
+function populateStats(container, stats) {
+  let col = document.createElement("div");
+  col.className = "col";
+  let count = document.createElement("div");
+  count.textContent = `# records: ${stats["count"]}`;
+  col.appendChild(count);
+  col.appendChild(document.createElement("br"));
+  let size = document.createElement("div");
+  size.textContent = `Total size: ${stats["size"]} KB`;
+  col.appendChild(size);
+  container.appendChild(col);
+
+  col = document.createElement("div");
+  col.className = "col";
+  let avgObjSize = document.createElement("div");
+  avgObjSize.textContent = `Avg obj size: ${stats["avgObjSize"]} B`;
+  col.appendChild(avgObjSize);
+  col.appendChild(document.createElement("br"));
+  let storageSize = document.createElement("div");
+  storageSize.textContent = `Storage size: ${stats["storageSize"]} KB`;
+  col.appendChild(storageSize);
+  container.appendChild(col);
+
+  col = document.createElement("div");
+  col.className = "col";
+  let nindexes = document.createElement("div");
+  nindexes.textContent = `# Indexes: ${stats["nindexes"]}`;
+  col.appendChild(nindexes);
+  col.appendChild(document.createElement("br"));
+  let totalIndexSize = document.createElement("div");
+  totalIndexSize.textContent = `Index size: ${stats["totalIndexSize"]} KB`;
+  col.appendChild(totalIndexSize);
+  container.appendChild(col);
 }
 
 function populateCreateForm(form, record) {

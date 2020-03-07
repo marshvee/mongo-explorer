@@ -9,6 +9,9 @@ MongoDB Explorer is a web app for exploring and managing your MongoDB databases 
 - Create a new record.
 - Update an existing record (out of the 20 shown).
 - Delete an existing record (out of the 20 shown).
+- Special feature: see collection stats.
+
+Due Saturday March 7th 2020, 8AM.
 
 ## Requirements
 You need to have npm and mongodb installed on your computer to run this locally.

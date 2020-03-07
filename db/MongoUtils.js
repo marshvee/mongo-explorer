@@ -29,6 +29,17 @@ function MongoUtils() {
             .finally(() => client.close())
       )
 
+  mu.getStats = (dbName, colName) =>
+    mu.connect()
+      .then(
+        client =>
+          client
+            .db(dbName)
+            .collection(colName)
+            .stats({ scale: 1024 })
+            .finally(() => client.close())
+      )
+
   mu.getRecords = (dbName, colName, query) =>
     mu.connect()
       .then(

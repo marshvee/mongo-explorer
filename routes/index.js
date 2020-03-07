@@ -15,6 +15,13 @@ router.get("/databases/:dbName/collections", function (req, res) {
     .then(cols => { res.send(cols); })
 });
 
+/* Stats data end point */
+router.get("/databases/:dbName/collections/:colName/stats", function (req, res) {
+  MongoUtils.getStats(req.params.dbName, req.params.colName)
+    .then(stats => { res.send(stats); })
+});
+
+
 /* Records data end point */
 router.get("/databases/:dbName/collections/:colName/records", function (req, res) {
   MongoUtils.getRecords(req.params.dbName, req.params.colName)
